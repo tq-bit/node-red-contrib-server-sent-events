@@ -22,7 +22,7 @@ function updateNodeStatus(node, type) {
  * @return {void}
  */
 function registerSubscriber(RED, node, msg) {
-  RED.log.info('Client connected')
+  RED.log.debug('Client connected')
   // Write the opening header
   msg.res._res.writeHead(200, {
     'Content-Type': 'text/event-stream',
@@ -114,8 +114,6 @@ module.exports = function (RED) {
     this.on('input', (msg, send, done) => {
       try {
         if (msg.res) {
-
-
           registerSubscriber(RED, this, msg);
         } else {
           handleServerEvent(RED, this, msg);
