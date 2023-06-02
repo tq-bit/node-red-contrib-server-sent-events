@@ -1,5 +1,5 @@
 {
-  "name": "red-contrib-server-sent-events",
+  "name": "node-red-contrib-server-sent-events",
   "version": "1.0.0",
   "description": "Nodes to create - or subscribe to - server-sent events",
   "main": "index.js",
@@ -10,9 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tq-bit/qache.git"
+    "url": "git+https://github.com/tq-bit/node-red-contrib-server-sent-events"
   },
-  "keywords": ["node-red", "nodes", "server-sent-events", "sse"],
+  "keywords": [
+    "node-red",
+    "nodes",
+    "server-sent-events",
+    "sse"
+  ],
   "author": "tobi@q-bit.me",
   "license": "Apache License 2.0",
   "engines": {
