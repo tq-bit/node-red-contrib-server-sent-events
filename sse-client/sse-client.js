@@ -41,6 +41,11 @@ function handleEventSourceError(RED, node, err) {
     _msid: RED.util.generateId(),
     error: err
   });
+  node.status({
+    fill: 'red',
+    shape: 'dot',
+    text: `${err}`,
+  });
   node.error(err);
 }
 
@@ -70,6 +75,12 @@ module.exports = function (RED) {
     this.event = config.event;
     this.headers = serializeHeaders(config.headers);
     this.eventSource = new EventSource(this.url, { withCredentials: true, headers: this.headers });
+
+    this.status({
+      fill: 'green',
+      shape: 'dot',
+      text: `Connected to ${this.url}`,
+    });
 
     // Register default message event
     this.eventSource.on(this.event, (event) => handleEvent(RED, this, event))
