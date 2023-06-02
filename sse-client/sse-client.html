@@ -1,4 +1,6 @@
 <script type="text/javascript">
+  // Slightly adjusted version of the http-in header node
+  // Source: Official Node-Red Node: https://github.com/node-red/node-red/blob/master/packages/node_modules/%40node-red/nodes/core/network/21-httprequest.html
   (function () {
     const headerTypes = [
       { value: "Authorization", label: "Authorization", hasValue: false },
@@ -18,12 +20,6 @@
         hasValue: true,
         icon: "red/images/typedInput/az.svg"
       },
-      { value: "msg", label: "msg.", hasValue: true },
-    ];
-
-    headerOptions["user-agent"] = [
-      { value: "Mozilla/5.0", label: "Mozilla/5.0", hasValue: false },
-      ...defaultOptions,
     ];
 
     headerOptions["authorization"] = [
@@ -53,8 +49,6 @@
       label: function () {
         return this.name || "sse-client";
       },
-
-      // Source: Official Node-Red Node: https://github.com/node-red/node-red/blob/master/packages/node_modules/%40node-red/nodes/core/network/21-httprequest.html
       oneditprepare: function () {
         const node = this;
 
@@ -154,10 +148,6 @@
       }
     });
   })()
-
-
-
-
 </script>
 
 <script type="text/html" data-template-name="sse-client">
