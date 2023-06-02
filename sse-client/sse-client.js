@@ -1,5 +1,14 @@
 const EventSource = require("eventsource")
 
+function handleEvent(RED, node, event) {
+  RED.log.debug(`Received event: from ${this.url} - ${event.type}`);
+  node.send({
+    _msid: RED.util.generateId(),
+    topic: event.type,
+    payload: event.data
+  });
+}
+
 function handleEventSourceError(RED, node, err) {
   RED.log.error(err);
   node.send({
@@ -7,6 +16,11 @@ function handleEventSourceError(RED, node, err) {
     error: err
   });
   node.error(err);
+}
+
+function handleEventSourceClose(RED, node) {
+  RED.log.debug(`Closing event source: ${this.url}`);
+  node.eventSource.close()
 }
 
 module.exports = function (RED) {
@@ -19,25 +33,13 @@ module.exports = function (RED) {
     this.eventSource = new EventSource(this.url, { withCredentials: true });
 
     // Register default message event
-    this.eventSource.on(this.event, (event) => {
-      RED.log.info(`Received event: ${event}`);
-      this.send({
-        _msid: RED.util.generateId(),
-        topic: event.type,
-        payload: event.data
-      });
-    })
-
-    // TODO: Register other event names
+    this.eventSource.on(this.event, (event) => handleEvent(RED, this, event))
 
     // Register error event
     this.eventSource.on('error', (err) => handleEventSourceError(RED, this, err));
 
     // Register close event of the node runtime to clean up old event sources
-    this.on('close', () => {
-      RED.log.debug(`Closing event source: ${this.url}`);
-      this.eventSource.close()
-    })
+    this.on('close', () => handleEventSourceClose(RED, this));
 
   }
   RED.nodes.registerType('sse-client', CreateSseClientNode);
