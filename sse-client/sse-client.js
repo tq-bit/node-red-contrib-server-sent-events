@@ -1,14 +1,6 @@
 const EventSource = require("eventsource")
 
-function serializeHeaders(headers) {
-  const _headers = {}
 
-  headers.forEach(header => {
-    _headers[header['keyValue']] = header['valueValue']
-  })
-
-  return _headers;
-}
 
 /**
  * Handles an event by logging it and sending a message to the node with a generated ID, topic, and payload.
@@ -73,7 +65,7 @@ module.exports = function (RED) {
 
     this.url = config.url
     this.event = config.event;
-    this.headers = serializeHeaders(config.headers);
+    this.headers = config.headers;
     this.eventSource = new EventSource(this.url, { withCredentials: true, headers: this.headers });
 
     this.status({

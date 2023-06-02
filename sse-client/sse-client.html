@@ -1,158 +1,31 @@
 <script type="text/javascript">
-  // Slightly adjusted version of the http-in header node
-  // Source: Official Node-Red Node: https://github.com/node-red/node-red/blob/master/packages/node_modules/%40node-red/nodes/core/network/21-httprequest.html
-  (function () {
-    const headerTypes = [
-      { value: "Authorization", label: "Authorization", hasValue: false },
-      { value: "Content-Type", label: "Content-Type", hasValue: false },
-      { value: "User-Agent", label: "User-Agent", hasValue: false },
-      {
-        value: "other", label: RED._("node-red:httpin.label.other"),
-        hasValue: true, icon: "red/images/typedInput/az.svg"
-      },
-      { value: "msg", label: "msg.", hasValue: true },
-    ]
-    const headerOptions = {};
-    const defaultOptions = [
-      {
-        value: "other",
-        label: RED._("node-red:httpin.label.other"),
-        hasValue: true,
-        icon: "red/images/typedInput/az.svg"
-      },
-    ];
-
-    headerOptions["authorization"] = [
-      { value: "Basic ", label: "Basic ", hasValue: true },
-      { value: "Bearer ", label: "Bearer ", hasValue: true },
-      ...defaultOptions
-    ]
-
-    function getHeaderOptions(headerName) {
-      const lc = (headerName || "").toLowerCase();
-      let opts = headerOptions[lc];
-      return opts || defaultOptions;
-    }
-
-    RED.nodes.registerType('sse-client', {
-      category: 'sse',
-      name: 'sse-client',
-      color: '#4693c8',
-      defaults: {
-        name: { value: "" },
-        url: { value: "", required: true },
-        event: { value: "", required: true },
-        headers: { value: [] },
-      },
-      outputs: 1,
-      icon: 'white-globe.svg',
-      label: function () {
-        return this.name || "sse-client";
-      },
-      oneditprepare: function () {
-        const node = this;
-
-        const hasMatch = (arr, value) => {
-          return arr.some((ht) => ht.value === value);
-        }
-        const headerList = $("#node-input-headers-container").css('min-height', '150px').css('min-width', '450px').editableList({
-          addItem: function (container, i, header) {
-            const row = $('<div/>').css({
-              overflow: 'hidden',
-              whiteSpace: 'nowrap',
-              display: 'flex'
-            }).appendTo(container);
-            const propertNameCell = $('<div/>').css({ 'flex-grow': 1 }).appendTo(row);
-            const propertyName = $('<input/>', { class: "node-input-header-name", type: "text", style: "width: 100%" })
-              .appendTo(propertNameCell)
-              .typedInput({ types: headerTypes });
-
-            const propertyValueCell = $('<div/>').css({ 'flex-grow': 1, 'margin-left': '10px' }).appendTo(row);
-            const propertyValue = $('<input/>', { class: "node-input-header-value", type: "text", style: "width: 100%" })
-              .appendTo(propertyValueCell)
-              .typedInput({
-                types: getHeaderOptions(header.keyType)
-              });
-
-            const setup = (_header) => {
-              const headerTypeIsAPreset = (h) => hasMatch(headerTypes, h);
-              const headerValueIsAPreset = (h, v) => hasMatch(getHeaderOptions(h), v);
-              const { keyType, keyValue, valueType, valueValue } = header;
-              if (keyType == "msg" || keyType == "other") {
-                propertyName.typedInput('type', keyType);
-                propertyName.typedInput('value', keyValue);
-              } else if (headerTypeIsAPreset(keyType)) {
-                propertyName.typedInput('type', keyType);
-              } else {
-                propertyName.typedInput('type', "other");
-                propertyName.typedInput('value', keyValue);
-              }
-              if (valueType == "msg" || valueType == "other") {
-                propertyValue.typedInput('type', valueType);
-                propertyValue.typedInput('value', valueValue);
-              } else if (headerValueIsAPreset(propertyName.typedInput('type'), valueType)) {
-                propertyValue.typedInput('type', valueType);
-              } else {
-                propertyValue.typedInput('type', "other");
-                propertyValue.typedInput('value', valueValue);
-              }
-            }
-            setup(header);
-
-            propertyName.on('change', (event) => {
-              propertyValue.typedInput('types', getHeaderOptions(propertyName.typedInput('type')));
-            });
-
-          },
-          sortable: true,
-          removable: true
-        });
-        if (node.headers) {
-          for (let index = 0; index < node.headers.length; index++) {
-            const element = node.headers[index];
-            headerList.editableList('addItem', node.headers[index]);
-          }
-        }
-      },
-      oneditsave: function () {
-        const headers = $("#node-input-headers-container").editableList('items');
-        console.log(headers);
-        const node = this;
-        node.headers = [];
-        headers.each(function (i) {
-          const header = $(this);
-          const keyType = header.find(".node-input-header-name").typedInput('type');
-          const keyValue = header.find(".node-input-header-name").typedInput('value');
-          const valueType = header.find(".node-input-header-value").typedInput('type');
-          const valueValue = header.find(".node-input-header-value").typedInput('value');
-          if (keyType !== '' || keyType === 'other' || keyType === 'msg') {
-            node.headers.push({
-              keyType, keyValue, valueType, valueValue
-            })
-          }
-        });
-      },
-      oneditresize: function (size) {
-        const dlg = $("#dialog-form");
-        const expandRow = dlg.find('.node-input-headers-container-row');
-        let height = dlg.height() - 5;
-        if (expandRow && expandRow.length) {
-          const siblingRows = dlg.find('> .form-row:not(.node-input-headers-container-row)');
-          for (let i = 0; i < siblingRows.size(); i++) {
-            const cr = $(siblingRows[i]);
-            if (cr.is(":visible"))
-              height -= cr.outerHeight(true);
-          }
-          $("#node-input-headers-container").editableList('height', height);
-        }
-      }
-    });
-  })()
+  RED.nodes.registerType('sse-client', {
+    category: 'sse',
+    name: 'sse-client',
+    color: '#4693c8',
+    defaults: {
+      name: { value: "" },
+      url: { value: "", required: true },
+      event: { value: "", required: true },
+      headers: { value: "" },
+    },
+    outputs: 1,
+    icon: 'white-globe.svg',
+    label: function () {
+      return this.name || "sse-client";
+    },
+    oneditprepare: function () {
+      $("#node-input-headers").typedInput({
+        type: "json",
+        types: ["json"]
+      })
+    },
+  });
 </script>
 
 <script type="text/html" data-template-name="sse-client">
   <div class="form-row">
-		<label for="node-input-name"><i class="fa fa-font"></i> Name </label>
+		<label for="node-input-name"><i class="fa fa-tags"></i> Name </label>
 		<input type="text" id="node-input-name" />
 	</div>
 	<div class="form-row">
@@ -163,9 +36,10 @@
 		<label for="node-input-event"><i class="fa fa-wifi"></i> Event </label>
 		<input type="text" id="node-input-event" />
 	</div>
-  <div class="form-row node-input-headers-container-row">
-    <ol id="node-input-headers-container"></ol>
-</div>
+  <div class="form-row">
+		<label for="node-input-headers"><i class="fa fa-wifi"></i> Headers </label>
+		<input type="text" id="node-input-headers" />
+	</div>
 	<div class="form-tips">
     <p>
       Define an SSE endpoint to subscribe to.
