@@ -37,7 +37,7 @@ event: message
 data: "{'hello': 'world'}"
 ```
 
-## SSE Client Node
+### SSE Client Node
 
 The SSE Client node allows you to subscribe to SSE servers and receive real-time updates from them.
 
@@ -49,7 +49,7 @@ To set up the SSE Client node, follow these steps:
 - Deploy your flow to activate the SSE Client.
 - Once the SSE Client is subscribed to a server, it will receive events in real-time.
 
-### Example: Configure the node
+#### Example: Configure the node
 
 Here's an example scenario to illustrate the usage of the SSE Server and SSE Client nodes together:
 
@@ -62,7 +62,7 @@ Here's an example scenario to illustrate the usage of the SSE Server and SSE Cli
 
 [You can also find an example flow in the package repository](https://github.com/tq-bit/node-red-contrib-server-sent-events/blob/master/examples/example1.jsons)
 
-### Example: Configure HTTP request headers
+#### Example: Configure HTTP request headers
 
 When a subscription is established, HTTP headers may be sent to the receiving endpoint. You can configure these in JSON format.
 In the client node, you can add headers using a key-value pair like so:
