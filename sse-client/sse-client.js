@@ -65,7 +65,7 @@ module.exports = function (RED) {
 
     this.url = config.url
     this.event = config.event;
-    this.headers = config.headers;
+    this.headers = JSON.parse(config.headers);
     this.eventSource = new EventSource(this.url, { withCredentials: true, headers: this.headers });
 
     this.status({
