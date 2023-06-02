@@ -1,0 +1,40 @@
+<script type="text/javascript">
+  RED.nodes.registerType('sse-client', {
+    category: 'sse',
+    name: 'sse-client',
+    color: '#4693c8',
+    defaults: {
+      name: { value: '', type: 'string' },
+      url: { value: '', type: 'string' }
+    },
+    inputs: 1,
+    icon: 'white-globe.svg',
+    label: function () {
+      return this.name || 'sse-client';
+    },
+  });
+</script>
+
+<script type="text/html" data-template-name="sse-client">
+  <div class="form-row">
+		<label for="node-input-name"><i class="fa fa-font"></i> Name </label>
+		<input type="text" id="node-input-name" />
+	</div>
+	<div class="form-row">
+		<label for="node-input-url"><i class="fa fa-podcast"></i> URL </label>
+		<input type="text" id="node-input-url" />
+	</div>
+	<div class="form-tips">
+    <p>
+      Define an SSE endpoint to subscribe to.
+    </p>
+	</div>
+</script>
+
+<script type="text/html" data-help-name="sse-client">
+	<p>Subscribe to a SSE - event stream.</p>
+	<p>
+		Reference for Server Sent Events on the client side:
+		https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events
+	</p>
+</script>
