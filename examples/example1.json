@@ -1,99 +1,115 @@
 [
   {
-    "id": "c9ee29e32f790c58",
-    "type": "http in",
-    "z": "a687787ee878e0d1",
-    "name": "GET /api/subscribe",
-    "url": "/subscribe",
-    "method": "get",
-    "upload": false,
-    "swaggerDoc": "",
-    "x": 230,
-    "y": 80,
-    "wires": [
-      [
-        "518ba27fa0e0e48e"
+      "id": "c9ee29e32f790c58",
+      "type": "http in",
+      "z": "a687787ee878e0d1",
+      "name": "GET /api/subscribe",
+      "url": "/subscribe",
+      "method": "get",
+      "upload": false,
+      "swaggerDoc": "",
+      "x": 230,
+      "y": 80,
+      "wires": [
+          [
+              "518ba27fa0e0e48e"
+          ]
       ]
-    ]
   },
   {
-    "id": "518ba27fa0e0e48e",
-    "type": "sse-server",
-    "z": "a687787ee878e0d1",
-    "name": "Send message server event",
-    "event": "message",
-    "data": "",
-    "x": 500,
-    "y": 120,
-    "wires": []
+      "id": "518ba27fa0e0e48e",
+      "type": "sse-server",
+      "z": "a687787ee878e0d1",
+      "name": "Send message server event",
+      "event": "message",
+      "data": "",
+      "x": 500,
+      "y": 120,
+      "wires": []
   },
   {
-    "id": "a73b435921cdafe9",
-    "type": "inject",
-    "z": "a687787ee878e0d1",
-    "name": "Send hello world message",
-    "props": [
-      {
-        "p": "payload"
-      },
-      {
-        "p": "topic",
-        "vt": "str"
-      }
-    ],
-    "repeat": "",
-    "crontab": "",
-    "once": false,
-    "onceDelay": 0.1,
-    "topic": "message",
-    "payload": "{\"msg\": \"Hello World!\"}",
-    "payloadType": "json",
-    "x": 210,
-    "y": 120,
-    "wires": [
-      [
-        "518ba27fa0e0e48e"
+      "id": "a73b435921cdafe9",
+      "type": "inject",
+      "z": "a687787ee878e0d1",
+      "name": "Send hello world message",
+      "props": [
+          {
+              "p": "payload"
+          },
+          {
+              "p": "topic",
+              "vt": "str"
+          }
+      ],
+      "repeat": "",
+      "crontab": "",
+      "once": false,
+      "onceDelay": 0.1,
+      "topic": "message",
+      "payload": "{\"msg\": \"Hello World!\"}",
+      "payloadType": "json",
+      "x": 210,
+      "y": 120,
+      "wires": [
+          [
+              "518ba27fa0e0e48e"
+          ]
       ]
-    ]
   },
   {
-    "id": "f94d9f5afe7ddbc7",
-    "type": "debug",
-    "z": "a687787ee878e0d1",
-    "name": "Log received event message",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 500,
-    "y": 180,
-    "wires": []
+      "id": "f94d9f5afe7ddbc7",
+      "type": "debug",
+      "z": "a687787ee878e0d1",
+      "name": "Log received event message",
+      "active": true,
+      "tosidebar": true,
+      "console": false,
+      "tostatus": false,
+      "complete": "payload",
+      "targetType": "msg",
+      "statusVal": "",
+      "statusType": "auto",
+      "x": 700,
+      "y": 180,
+      "wires": []
   },
   {
-    "id": "6079a4e786ea1ea8",
-    "type": "sse-client",
-    "z": "a687787ee878e0d1",
-    "name": "Subscribe to message server event",
-    "url": "http://localhost:1880/subscribe",
-    "event": "message",
-    "headers": [
-      {
-        "keyType": "other",
-        "keyValue": "x-api-token",
-        "valueType": "other",
-        "valueValue": "my-token"
-      }
-    ],
-    "x": 180,
-    "y": 180,
-    "wires": [
-      [
-        "f94d9f5afe7ddbc7"
+      "id": "6079a4e786ea1ea8",
+      "type": "sse-client",
+      "z": "a687787ee878e0d1",
+      "name": "Subscribe to message server event",
+      "url": "http://localhost:1880/subscribe",
+      "event": "message",
+      "headers": [
+          {
+              "keyType": "other",
+              "keyValue": "x-api-token",
+              "valueType": "other",
+              "valueValue": "my-token"
+          }
+      ],
+      "x": 180,
+      "y": 180,
+      "wires": [
+          [
+              "23aa42942f663831"
+          ]
       ]
-    ]
+  },
+  {
+      "id": "23aa42942f663831",
+      "type": "json",
+      "z": "a687787ee878e0d1",
+      "name": "Parse JSON",
+      "property": "payload",
+      "action": "",
+      "pretty": false,
+      "x": 450,
+      "y": 180,
+      "wires": [
+          [
+              "f94d9f5afe7ddbc7"
+          ]
+      ]
   }
 ]
