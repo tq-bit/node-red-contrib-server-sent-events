@@ -5,7 +5,8 @@ The Node-RED SSE Package is a collection of two nodes that provide functionality
 ## Nodes
 
 ### SSE Server Node
-The SSE Server node allows you to create a server that clients can subscribe to in order to receive real-time updates. This node must originate from a default http in node.
+
+The SSE Server node allows you to create a server that clients can subscribe to. All connected clients will then receive realtime notificaitons from another input node. This node must originate from a default http in node.
 
 #### Example: Configure the node
 
