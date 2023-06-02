@@ -14,6 +14,12 @@
     label: function () {
       return this.name || 'sse-server';
     },
+    oneditprepare: function () {
+      $("#node-input-data").typedInput({
+        type: "json",
+        types: ["json"]
+      })
+    }
   });
 </script>
 
@@ -23,18 +29,19 @@
 		<input type="text" id="node-input-name" />
 	</div>
 	<div class="form-row">
-		<label for="node-input-event"><i class="fa fa-podcast"></i> Event </label>
+		<label for="node-input-event"><i class="fa fa-wifi"></i> Event </label>
 		<input type="text" id="node-input-event" />
 	</div>
 </div>
 <div class="form-row">
-  <label for="node-input-data"><i class="fa fa-wifi"></i> Event </label>
+  <label for="node-input-data"><i class="fa fa-cube"></i> Data </label>
   <input type="text" id="node-input-data" />
 </div>
 	<div class="form-tips">
     <p>
-      Define an event name & a payload to send to all subscribed clients of this HTTP endpoint. By
-      default, `msg.topic` will be used for the event type, `msg.payload` will be stringified and sent
+      Define an event name and a payload to send to all subscribed clients of this HTTP endpoint. By
+      default, `msg.topic` will be used to declare the event's <code>type</code>, <code>msg.payload</code> will be stringified and
+      send as the event's <code>data</code> property.
     </p>
     <b>
       This node must always origin from an 'http in' node
@@ -43,9 +50,11 @@
 </script>
 
 <script type="text/html" data-help-name="sse-server">
-	<p>Subscribe to a SSE - event stream. This node must originate from a default `http-in` node.</p>
-	<p>
-		Reference for Server Sent Events on the client side:
-		https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events
-	</p>
+  <h2>SSE Serverside node</h2>
+	<p>Open an SSE - event stream to a connected client. This node must originate from a default <code>http-in</code> node.</p>
+  <p>
+    To connect from a client, you can use the <code>sse-client</code> node from this module or the
+    <code>EventSource</code> API.
+  </p>
+
 </script>
