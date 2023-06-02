@@ -61,27 +61,31 @@ module.exports = function (RED) {
    * @param {Object} config - Node-RED node configuration object.
    */
   function CreateSseClientNode(config) {
-    RED.nodes.createNode(this, config);
+    try {
+      RED.nodes.createNode(this, config);
 
-    this.url = config.url
-    this.event = config.event;
-    this.headers = JSON.parse(config.headers);
-    this.eventSource = new EventSource(this.url, { withCredentials: true, headers: this.headers });
+      this.url = config.url
+      this.event = config.event;
+      this.headers = JSON.parse(config.headers);
+      this.eventSource = new EventSource(this.url, { withCredentials: true, headers: this.headers });
 
-    this.status({
-      fill: 'green',
-      shape: 'dot',
-      text: `Connected to ${this.url}`,
-    });
+      this.status({
+        fill: 'green',
+        shape: 'dot',
+        text: `Connected to ${this.url}`,
+      });
 
-    // Register default message event
-    this.eventSource.on(this.event, (event) => handleEvent(RED, this, event))
+      // Register default message event
+      this.eventSource.on(this.event, (event) => handleEvent(RED, this, event))
 
-    // Register error event
-    this.eventSource.on('error', (err) => handleEventSourceError(RED, this, err));
+      // Register error event
+      this.eventSource.on('error', (err) => handleEventSourceError(RED, this, err));
 
-    // Register close event of the node runtime to clean up old event sources
-    this.on('close', () => handleEventSourceClose(RED, this));
+      // Register close event of the node runtime to clean up old event sources
+      this.on('close', () => handleEventSourceClose(RED, this));
+    } catch (error) {
+      RED.log.error(error)
+    }
 
   }
   RED.nodes.registerType('sse-client', CreateSseClientNode);
