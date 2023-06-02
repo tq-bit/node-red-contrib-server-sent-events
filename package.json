@@ -1,7 +1,7 @@
 {
   "name": "red-contrib-server-sent-events",
   "version": "1.0.0",
-  "description": "",
+  "description": "Nodes to create - or subscribe to - server-sent events",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,7 +9,11 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "node-red": {
+    "version": ">=3.0.2",
     "nodes": {
       "sse-server": "sse-server/sse-server.js",
       "sse-client": "sse-client/sse-client.js"
