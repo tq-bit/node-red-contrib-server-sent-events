@@ -1,5 +1,13 @@
 const EventSource = require("eventsource")
 
+/**
+ * Handles an event by logging it and sending a message to the node with a generated ID, topic, and payload.
+ *
+ * @param {Object} RED - the global RED object
+ * @param {Object} node - the node object that received the event
+ * @param {Object} event - the event object received
+ * @return {void}
+ */
 function handleEvent(RED, node, event) {
   RED.log.debug(`Received event: from ${this.url} - ${event.type}`);
   node.send({
@@ -9,6 +17,14 @@ function handleEvent(RED, node, event) {
   });
 }
 
+/**
+ * Handles errors from an event source.
+ *
+ * @param {Object} RED - the Node-RED runtime object
+ * @param {Object} node - the node that received the error
+ * @param {Error} err - the error that occurred
+ * @return {void}
+ */
 function handleEventSourceError(RED, node, err) {
   RED.log.error(err);
   node.send({
@@ -18,6 +34,13 @@ function handleEventSourceError(RED, node, err) {
   node.error(err);
 }
 
+/**
+ * Closes the eventSource and logs a debug message.
+ *
+ * @param {Object} RED - The Node-RED runtime object.
+ * @param {Object} node - The node instance that the function is called on.
+ * @return {void}
+ */
 function handleEventSourceClose(RED, node) {
   RED.log.debug(`Closing event source: ${this.url}`);
   node.eventSource.close()
@@ -25,6 +48,11 @@ function handleEventSourceClose(RED, node) {
 
 module.exports = function (RED) {
 
+  /**
+   * Creates a new SSE (Server-Sent Events) client node.
+   *
+   * @param {Object} config - Node-RED node configuration object.
+   */
   function CreateSseClientNode(config) {
     RED.nodes.createNode(this, config);
 
