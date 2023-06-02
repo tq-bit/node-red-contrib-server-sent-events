@@ -4,11 +4,17 @@
   "description": "Nodes to create - or subscribe to - server-sent events",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "release": "npm version patch --no-git-tag-version && npm publish --access public",
+    "release:minor": "npm version minor --no-git-tag-version && npm publish --access public",
+    "release:major": "npm version major --no-git-tag-version && npm publish --access public"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tq-bit/qache.git"
+  },
+  "keywords": ["node-red", "nodes", "server-sent-events", "sse"],
+  "author": "tobi@q-bit.me",
+  "license": "Apache License 2.0",
   "engines": {
     "node": ">=16.0.0"
   },
