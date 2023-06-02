@@ -5,7 +5,8 @@
     color: '#4693c8',
     defaults: {
       name: { value: '', type: 'string' },
-      url: { value: '', type: 'string' }
+      url: { value: '', type: 'string' },
+      event: {value: 'message', type: 'string'}
     },
     outputs: 1,
     icon: 'white-globe.svg',
@@ -23,6 +24,10 @@
 	<div class="form-row">
 		<label for="node-input-url"><i class="fa fa-podcast"></i> URL </label>
 		<input type="text" id="node-input-url" />
+	</div>
+  <div class="form-row">
+		<label for="node-input-event"><i class="fa fa-wifi"></i> Event </label>
+		<input type="text" id="node-input-event" />
 	</div>
 	<div class="form-tips">
     <p>
