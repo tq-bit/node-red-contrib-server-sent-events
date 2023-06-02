@@ -9,9 +9,13 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-     "node-red" : {
-        "nodes": {
-            "sse-server": "sse-server/sse-server.js"
-        }
+  "node-red": {
+    "nodes": {
+      "sse-server": "sse-server/sse-server.js",
+      "sse-client": "sse-client/sse-client.js"
     }
+  },
+  "dependencies": {
+    "eventsource": "^2.0.2"
+  }
 }
