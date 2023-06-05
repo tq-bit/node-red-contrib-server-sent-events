@@ -28,17 +28,18 @@ function handleEvent(RED, node, event) {
  * @return {void}
  */
 function handleEventSourceError(RED, node, err) {
-  RED.log.error(err);
+  const errorMessage = err.message ? err.message : err;
+  RED.log.error(errorMessage);
   node.send({
     _msid: RED.util.generateId(),
-    error: err
+    error: errorMessage
   });
   node.status({
     fill: 'red',
     shape: 'dot',
-    text: `${err}`,
+    text: `${errorMessage}`,
   });
-  node.error(err);
+  node.error(errorMessage);
 }
 
 /**
@@ -66,7 +67,7 @@ module.exports = function (RED) {
 
       this.url = config.url
       this.event = config.event;
-      this.headers = JSON.parse(config.headers);
+      this.headers = config.headers ? JSON.parse(config.headers) : {};
       this.eventSource = new EventSource(this.url, { withCredentials: true, headers: this.headers });
 
       this.status({
@@ -84,6 +85,12 @@ module.exports = function (RED) {
       // Register close event of the node runtime to clean up old event sources
       this.on('close', () => handleEventSourceClose(RED, this));
     } catch (error) {
+      this.status({
+        fill: 'red',
+        shape: 'dot',
+        text: `${error.message}`
+      })
+      console.error(error)
       RED.log.error(error)
     }
 
