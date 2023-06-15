@@ -1,5 +1,9 @@
 # Node Red Server Sent Event Nodes
 
+<img alt="Libraries.io dependency status for latest release, scoped npm package" src="https://img.shields.io/librariesio/release/npm/@tq-bit/node-red-contrib-server-sent-events?style=plastic">
+<img alt="npm" src="https://img.shields.io/npm/dt/@tq-bit/node-red-contrib-server-sent-events?style=plastic">
+<img alt="GitHub" src="https://img.shields.io/github/license/tq-bit/node-red-contrib-server-sent-events?style=plastic">
+
 The Node-RED SSE Package is a collection of two nodes that provide functionality for working with Server-Sent Events (SSE) in Node-RED. Server-Sent Events is a technology that allows the server to push updates to the client in real-time over a single HTTP connection. This package simplifies the process of implementing SSE functionality in your Node-RED flows.
 
 ## Nodes
