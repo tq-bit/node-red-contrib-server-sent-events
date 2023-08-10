@@ -39,7 +39,39 @@ msg.payload = {
 // ... the resulting event sent to a client looks like this:
 event: message
 data: "{'hello': 'world'}"
+
+// A frontend client using Javascript's EventSource api can then access this message like so:
+const sse = new EventSource('http://localhost:1880/api/sse');
+sse.addEventListener('message', (event) => {
+  console.log(event);
+})
 ```
+
+#### Example: Using a custom topic / event type
+
+As you saw in the example above, each event can have a specific type. The default type for SSE is 'message'. If you would like to change the name of the event type, you can set the `msg.topic` to a custom name. This can be useful when using several distinct events you would like to send to one or several connected clients.
+
+> Note that EventSource has reserved keywords, such as 'error' and 'open' which should not be used as a SSE event name.
+
+```js
+// When setting the message's topic and payload...
+msg.topic = 'reload'
+msg.payload = {
+  reload: true,
+  date: new Date()
+}
+
+// ... the resulting event sent to a client looks like this:
+event: reload
+data: "{'reload': true, 'date': '...'}"
+
+// A frontend client using Javascript's EventSource api can then access this message like so:
+const sse = new EventSource('http://localhost:1880/api/sse');
+sse.addEventListener('reload', (event) => {
+  console.log(event);
+})
+```
+
 
 ### SSE Client Node
 
