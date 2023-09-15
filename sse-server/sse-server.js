@@ -122,7 +122,7 @@ module.exports = function (RED) {
         RED.log.error(error)
         updateNodeStatus(this, 'error');
       } finally {
-        done()
+        if (done && typeof done === 'function') done()
       }
     });
   }
