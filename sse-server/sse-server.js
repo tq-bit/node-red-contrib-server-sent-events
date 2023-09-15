@@ -37,14 +37,14 @@ function registerSubscriber(RED, node, msg) {
 
   // Close a SSE connection when client disconnects
   msg.res._res.req.on('close', () => {
-    unregisterSubscriber(node, msg);
     updateNodeStatus(node, 'success');
+    unregisterSubscriber(node, msg);
   });
 
   // Close all connections when a runtime event is registered, e.g. redeploy
   RED.events.on('runtime-event', () => {
-    unregisterSubscriber(node, msg);
     updateNodeStatus(node, 'success');
+    unregisterSubscriber(node, msg);
   });
 
   // Append the request to a list of subscribers for this nod.
