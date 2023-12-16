@@ -68,6 +68,7 @@ function unregisterSubscriber(node, msg) {
   msg.res._res.write('event: close\n');
   msg.res._res.write(`data: The connection was closed by the server.\n`);
   msg.res._res.write(`id: ${msg._msgid}\n\n`);
+  msg.res._res.flush();
 
   // Remove the subscriber from the list
   node.subscribers = node.subscribers.filter((subscriber) => {
