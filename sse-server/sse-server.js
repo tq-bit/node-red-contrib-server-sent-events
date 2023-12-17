@@ -34,8 +34,7 @@ function registerSubscriber(RED, node, msg) {
 	msg.res._res.write('event: open\n');
 	msg.res._res.write(`data: ${JSON.stringify(msg.payload || 'Connection opened')}\n`);
 	msg.res._res.write(`id: ${msg._msgid}\n\n`);
-	console.log(msg.res);
-	if (msg.res._res.flush) msg.res._res?.flush();
+	if (msg.res._res.flush) msg.res._res.flush();
 
 	// Close a SSE connection when client disconnects
 	msg.res._res.req.on('close', () => {
@@ -70,7 +69,7 @@ function unregisterSubscriber(node, msg) {
 	msg.res._res.write('event: close\n');
 	msg.res._res.write(`data: The connection was closed by the server.\n`);
 	msg.res._res.write(`id: ${msg._msgid}\n\n`);
-	if (msg.res._res.flush) msg.res._res?.flush();
+	if (msg.res._res.flush) msg.res._res.flush();
 
 	// Remove the subscriber from the list
 	node.subscribers = node.subscribers.filter((subscriber) => {
@@ -94,7 +93,7 @@ function handleServerEvent(RED, node, msg) {
 		subscriber.socket._res.write(`event: ${event}\n`);
 		subscriber.socket._res.write(`data: ${data}\n`);
 		subscriber.socket._res.write(`id: ${msg._msgid}\n\n`);
-		if (subscriber.socket._res.flush) subscriber.socket._res?.flush();
+		if (subscriber.socket._res.flush) subscriber.socket._res.flush();
 	});
 }
 
