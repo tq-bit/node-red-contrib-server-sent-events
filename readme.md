@@ -110,6 +110,63 @@ In the client node, you can add headers using a key-value pair like so:
 }
 ```
 
+## Example HTML client
+
+Copy-paste this markup into an HTML page:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Node Red SSE Test</title>
+</head>
+
+<body>
+  <h1>Node Red SSE Test</h1>
+  <p>This is a test page which will subscribe to an SSE Server powered by <a href="https://www.npmjs.com/package/@tq-bit/node-red-contrib-server-sent-events"
+      target="_blank"><code>node-red-contrib-server-sent-events</code></a></p>
+  <p>Enter your input to this field and click submit</p>
+
+  <input id="input" type="text" placeholder="http://localhost:1880/subscribe" />
+  <button id="submit">Submit</button>
+
+  <h2>Status</h2>
+  <div id="status">Not connected</div>
+
+  <h2>Messages</h2>
+  <div id="messages">
+    <p>Messages sent from an SSE server will be displayed here</p>
+  </div>
+
+  <!-- Script to handle the EventSource API -->
+  <script>
+    const input = document.getElementById("input");
+    const submit = document.getElementById("submit");
+    const status = document.getElementById("status");
+    const messages = document.getElementById("messages");
+
+    submit.addEventListener("click", () => {
+      const url = input.value;
+      const eventSource = new EventSource(url);
+
+      eventSource.addEventListener('open', () => {
+        status.innerHTML = `Connected to ${url}`;
+      })
+      eventSource.addEventListener('error', () => {
+        status.innerHTML = `Disconnected from ${url}`
+      })
+      eventSource.addEventListener("message", (event) => {
+        messages.innerHTML += `<p>${event.data}</p>`;
+      });
+    });
+  </script>
+</body>
+</html>
+```
+
 ## Support and Feedback
 
 If you encounter any issues or have any feedback regarding the Node-RED SSE Package, please feel free to open an issue on the package's [GitHub repository](https://github.com/tq-bit/node-red-contrib-server-sent-events). I appreciate your feedback and will do my best to address any problems or feature requests.
