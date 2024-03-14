@@ -42,12 +42,6 @@ function registerSubscriber(RED, node, msg) {
 		unregisterSubscriber(node, msg);
 	});
 
-	// Close all connections when a runtime event is registered, e.g. redeploy
-	RED.events.on('runtime-event', () => {
-		updateNodeStatus(node, 'success');
-		unregisterSubscriber(node, msg);
-	});
-
 	// Append the request to a list of subscribers for this nod.
 	node.subscribers.push({
 		id: msg._msgid,
@@ -125,6 +119,17 @@ module.exports = function (RED) {
 			} finally {
 				if (done && typeof done === 'function') done();
 			}
+		});
+
+		// When a runtime event, such as redeply, is registered, close all connections
+		RED.events.on('runtime-event', () => {
+			updateNodeStatus(this, 'success');
+			this.subscribers.forEach((subscriber) => {
+				subscriber.socket._res.write(`event: close\n`);
+				subscriber.socket._res.write(`data: Collection closed\n`);
+				subscriber.socket._res.write(`id: 0\n\n`);
+				if (subscriber.socket._res.flush) subscriber.socket._res.flush();
+			});
 		});
 	}
 	RED.nodes.registerType('sse-server', CreateSseServerNode);
