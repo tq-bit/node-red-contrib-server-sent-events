@@ -1,4 +1,13 @@
 /**
+ *
+ * @param {string | Object} data
+ * @returns
+ */
+function _serializeData(data) {
+	return typeof data === 'string' ? data : JSON.stringify(data);
+}
+
+/**
  * Updates the status of a given node with a blue circle and the number of connected clients.
  *
  * @param {Object} node - The node to update status for.
@@ -32,7 +41,7 @@ function registerSubscriber(RED, node, msg) {
 
 	// Write the initial opening message
 	msg.res._res.write('event: open\n');
-	msg.res._res.write(`data: ${JSON.stringify(msg.payload || 'Connection opened')}\n`);
+	msg.res._res.write(`data: ${_serializeData(msg.payload || 'Connection opened')}\n`);
 	msg.res._res.write(`id: ${msg._msgid}\n\n`);
 	if (msg.res._res.flush) msg.res._res.flush();
 
@@ -80,7 +89,7 @@ function unregisterSubscriber(node, msg) {
  */
 function handleServerEvent(RED, node, msg) {
 	const event = `${node.event || msg.topic || 'message'}`;
-	const data = `${JSON.stringify(node.data || msg.payload)}`;
+	const data = `${_serializeData(node.data || msg.payload)}`;
 	RED.log.info(`Sent event: ${event}`);
 	RED.log.debug(`Data: ${data}`);
 	node.subscribers.forEach((subscriber) => {
@@ -106,6 +115,7 @@ module.exports = function (RED) {
 		this.event = config.event;
 		this.data = config.data;
 
+		/**@ts-ignore */
 		this.on('input', (msg, send, done) => {
 			try {
 				if (msg.res) {
