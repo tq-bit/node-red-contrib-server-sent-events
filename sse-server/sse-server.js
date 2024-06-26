@@ -90,7 +90,7 @@ function unregisterSubscriber(node, msg) {
 function handleServerEvent(RED, node, msg) {
 	const event = `${node.event || msg.topic || 'message'}`;
 	const data = `${_serializeData(node.data || msg.payload)}`;
-	RED.log.info(`Sent event: ${event}`);
+	RED.log.debug(`Sent event: ${event}`);
 	RED.log.debug(`Data: ${data}`);
 	node.subscribers.forEach((subscriber) => {
 		subscriber.socket._res.write(`event: ${event}\n`);
