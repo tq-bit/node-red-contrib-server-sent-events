@@ -47,8 +47,8 @@ function registerSubscriber(RED, node, msg) {
 
 	// Close a SSE connection when client disconnects
 	msg.res._res.req.on('close', () => {
-		updateNodeStatus(node, 'success');
 		unregisterSubscriber(node, msg);
+		updateNodeStatus(node, 'success');
 	});
 
 	// Append the request to a list of subscribers for this nod.
