@@ -25,9 +25,9 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
 
-      - name: Increment minor version
+      - name: Increment patch version
         run: |
-          npm version minor -m "Bump version to %s [skip ci]"
+          npm version patch -m "Bump version to %s [skip ci]"
           git push --follow-tags
 
       - name: Install dependencies
