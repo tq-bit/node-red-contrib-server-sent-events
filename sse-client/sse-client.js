@@ -1,6 +1,4 @@
-const EventSource = require("eventsource")
-
-
+const EventSource = require("eventsource");
 
 /**
  * Handles an event by logging it and sending a message to the node with a generated ID, topic, and payload.
@@ -15,7 +13,7 @@ function handleEvent(RED, node, event) {
   node.send({
     _msid: RED.util.generateId(),
     topic: event.type,
-    payload: event.data
+    payload: event.data,
   });
 }
 
@@ -27,19 +25,61 @@ function handleEvent(RED, node, event) {
  * @param {Error} err - the error that occurred
  * @return {void}
  */
-function handleEventSourceError(RED, node, err) {
+function handleEventSourceError(RED, node, config, err) {
+  // Count the amount of times an error occured
+  node.counter = (node.counter || 0) + 1;
+
   const errorMessage = err.message ? err.message : err;
   RED.log.error(errorMessage);
   node.send({
     _msid: RED.util.generateId(),
-    error: errorMessage
+    error: errorMessage,
   });
   node.status({
-    fill: 'red',
-    shape: 'dot',
-    text: `${errorMessage}`,
+    fill: "yellow",
+    shape: "dot",
+    text: `${errorMessage} | Trying again in ${node.counter * 5} seconds`,
   });
   node.error(errorMessage);
+
+  if (node.counter < 5) {
+    node.eventSource.close();
+    setTimeout(() => connect(RED, node, config), node.counter * 5000);
+  } else {
+    node.eventSource.close();
+    node.status({
+      fill: "red",
+      shape: "dot",
+      text: `Failed to connect to ${node.url} after ${node.counter} attempts`,
+    });
+  }
+}
+
+function connect(RED, node, config) {
+  RED.nodes.createNode(node, config);
+
+  node.url = config.url;
+  node.event = config.event;
+  node.headers = config.headers ? JSON.parse(config.headers) : {};
+  node.eventSource = new EventSource(node.url, {
+    withCredentials: true,
+    headers: node.headers,
+  });
+
+  node.status({
+    fill: "green",
+    shape: "dot",
+    text: `Connected to ${node.url}`,
+  });
+
+  // Register default message event
+  node.eventSource.on(node.event, (event) => handleEvent(RED, node, event));
+
+  // Register error event
+  node.eventSource.on("error", (err) => handleEventSourceError(RED, node, config, err));
+
+  // Register close event of the node runtime to clean up old event sources
+  node.on("close", () => handleEventSourceClose(RED, node));
 }
 
 /**
@@ -51,11 +91,10 @@ function handleEventSourceError(RED, node, err) {
  */
 function handleEventSourceClose(RED, node) {
   RED.log.debug(`Closing event source: ${this.url}`);
-  node.eventSource.close()
+  node.eventSource.close();
 }
 
 module.exports = function (RED) {
-
   /**
    * Creates a new SSE (Server-Sent Events) client node.
    *
@@ -63,37 +102,16 @@ module.exports = function (RED) {
    */
   function CreateSseClientNode(config) {
     try {
-      RED.nodes.createNode(this, config);
-
-      this.url = config.url
-      this.event = config.event;
-      this.headers = config.headers ? JSON.parse(config.headers) : {};
-      this.eventSource = new EventSource(this.url, { withCredentials: true, headers: this.headers });
-
-      this.status({
-        fill: 'green',
-        shape: 'dot',
-        text: `Connected to ${this.url}`,
-      });
-
-      // Register default message event
-      this.eventSource.on(this.event, (event) => handleEvent(RED, this, event))
-
-      // Register error event
-      this.eventSource.on('error', (err) => handleEventSourceError(RED, this, err));
-
-      // Register close event of the node runtime to clean up old event sources
-      this.on('close', () => handleEventSourceClose(RED, this));
+      connect(RED, this, config);
     } catch (error) {
       this.status({
-        fill: 'red',
-        shape: 'dot',
-        text: `${error.message}`
-      })
-      console.error(error)
-      RED.log.error(error)
+        fill: "red",
+        shape: "dot",
+        text: `${error.message}`,
+      });
+      console.error(error);
+      RED.log.error(error);
     }
-
   }
-  RED.nodes.registerType('sse-client', CreateSseClientNode);
+  RED.nodes.registerType("sse-client", CreateSseClientNode);
 };
