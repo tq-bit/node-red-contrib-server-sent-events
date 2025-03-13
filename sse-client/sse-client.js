@@ -27,7 +27,7 @@ function handleEvent(RED, node, event) {
  */
 function handleEventSourceError(RED, node, config, err) {
   // Count the amount of times an error occured
-  node.counter = (node.counter || 0) + 1;
+  node._counter = (node._counter || 0) + 1;
 
   const errorMessage = err.message ? err.message : err;
   RED.log.error(errorMessage);
@@ -39,23 +39,23 @@ function handleEventSourceError(RED, node, config, err) {
     fill: "yellow",
     shape: "dot",
     text: `${errorMessage} | Trying again in ${
-      (node.counter * node.connectionAttemptInterval) / 1000
+      (node._counter * node.connectionAttemptInterval) / 1000
     } seconds`,
   });
   node.error(errorMessage);
 
-  if (node.counter < node.maxConnectionAttempts) {
+  if (node._counter < node.maxConnectionAttempts) {
     node.eventSource.close();
     setTimeout(
       () => connect(RED, node, config),
-      node.counter * node.connectionAttemptInterval
+      node._counter * node.connectionAttemptInterval
     );
   } else {
     node.eventSource.close();
     node.status({
       fill: "red",
       shape: "dot",
-      text: `Failed to connect to ${node.url} after ${node.counter} attempts`,
+      text: `Failed to connect to ${node.url} after ${node._counter} attempts`,
     });
   }
 }
@@ -63,16 +63,14 @@ function handleEventSourceError(RED, node, config, err) {
 function connect(RED, node, config) {
   RED.nodes.createNode(node, config);
 
-  node.url = config.url;
-  node.event = config.event;
-  node.headers = config.headers ? JSON.parse(config.headers) : {};
+  // General event source variables
+
   node.eventSource = new EventSource(node.url, {
     withCredentials: true,
     headers: node.headers,
   });
-  node.maxConnectionAttempts = config.maxConnectionAttempts || 5;
-  node.connectionAttemptInterval = config.connectionAttemptInterval || 5000;
 
+  setTimeout(() => handleEventSourceClose(RED, node, config), 10000);
   node.status({
     fill: "green",
     shape: "dot",
@@ -88,7 +86,9 @@ function connect(RED, node, config) {
   );
 
   // Register close event of the node runtime to clean up old event sources
-  node.on("close", () => handleEventSourceClose(RED, node));
+  node.on("close", () => handleEventSourceClose(RED, node, config));
+
+  RED.log.info(`Successfully connected to ${node.url}`);
 }
 
 /**
@@ -98,9 +98,29 @@ function connect(RED, node, config) {
  * @param {Object} node - The node instance that the function is called on.
  * @return {void}
  */
-function handleEventSourceClose(RED, node) {
+function handleEventSourceClose(RED, node, config) {
   RED.log.debug(`Closing event source: ${node.url}`);
   node.eventSource.close();
+
+  if (node.reconnectOnClose) {
+    RED.log.warn(
+      `Lost connection to ${node.url} - Reconnecting in ${
+        (node.connectionAttemptInterval * (node._counter + 1)) / 1000
+      } seconds`
+    );
+    node._counter = node._counter + 1;
+    node.status({
+      fill: "yellow",
+      shape: "dot",
+      text: `Lost connection to ${node.url} - Reconnecting in ${
+        (node.connectionAttemptInterval * (node._counter + 1)) / 1000
+      } seconds`,
+    });
+    setTimeout(
+      () => connect(RED, node, config),
+      node.connectionAttemptInterval * (node._counter + 1)
+    );
+  }
 }
 
 module.exports = function (RED) {
@@ -111,14 +131,29 @@ module.exports = function (RED) {
    */
   function CreateSseClientNode(config) {
     try {
+      this.url = config.url;
+      this.event = config.event;
+      this.headers = config.headers ? JSON.parse(config.headers) : {};
+      this._counter = 0;
+      this.maxConnectionAttempts = config.maxConnectionAttempts || 5;
+      this.connectionAttemptInterval = config.connectionAttemptInterval || 5000;
+      this.reconnectOnClose = config.reconnectOnClose === "true";
+
       connect(RED, this, config);
+
+      const resetTimeout =
+        this.maxConnectionAttempts * this.connectionAttemptInterval * this.maxConnectionAttempts;
+      RED.log.debug(`Reset counter for ${this.url} in ${resetTimeout / 1000} seconds`);
+      setTimeout(() => {
+        this._counter = 0;
+        RED.log.debug(`Reset counter for ${this.url}`);
+      }, resetTimeout);
     } catch (error) {
       this.status({
         fill: "red",
         shape: "dot",
         text: `${error.message}`,
       });
-      console.error(error);
       RED.log.error(error);
     }
   }
