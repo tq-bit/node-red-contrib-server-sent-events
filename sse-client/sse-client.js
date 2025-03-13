@@ -38,13 +38,18 @@ function handleEventSourceError(RED, node, config, err) {
   node.status({
     fill: "yellow",
     shape: "dot",
-    text: `${errorMessage} | Trying again in ${node.counter * 5} seconds`,
+    text: `${errorMessage} | Trying again in ${
+      (node.counter * node.connectionAttemptInterval) / 1000
+    } seconds`,
   });
   node.error(errorMessage);
 
-  if (node.counter < 5) {
+  if (node.counter < node.maxConnectionAttempts) {
     node.eventSource.close();
-    setTimeout(() => connect(RED, node, config), node.counter * 5000);
+    setTimeout(
+      () => connect(RED, node, config),
+      node.counter * node.connectionAttemptInterval
+    );
   } else {
     node.eventSource.close();
     node.status({
@@ -65,6 +70,8 @@ function connect(RED, node, config) {
     withCredentials: true,
     headers: node.headers,
   });
+  node.maxConnectionAttempts = config.maxConnectionAttempts || 5;
+  node.connectionAttemptInterval = config.connectionAttemptInterval || 5000;
 
   node.status({
     fill: "green",
@@ -76,7 +83,9 @@ function connect(RED, node, config) {
   node.eventSource.on(node.event, (event) => handleEvent(RED, node, event));
 
   // Register error event
-  node.eventSource.on("error", (err) => handleEventSourceError(RED, node, config, err));
+  node.eventSource.on("error", (err) =>
+    handleEventSourceError(RED, node, config, err)
+  );
 
   // Register close event of the node runtime to clean up old event sources
   node.on("close", () => handleEventSourceClose(RED, node));
@@ -90,7 +99,7 @@ function connect(RED, node, config) {
  * @return {void}
  */
 function handleEventSourceClose(RED, node) {
-  RED.log.debug(`Closing event source: ${this.url}`);
+  RED.log.debug(`Closing event source: ${node.url}`);
   node.eventSource.close();
 }
 

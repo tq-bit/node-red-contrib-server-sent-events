@@ -8,6 +8,8 @@
       url: { value: "", required: true },
       event: { value: "", required: true },
       headers: { value: "" },
+      maxConnectionAttempts: { value: "" },
+      connectionAttemptInterval: { value: "" },
     },
     outputs: 1,
     icon: 'white-globe.svg',
@@ -40,10 +42,25 @@
 		<label for="node-input-headers"><i class="fa fa-list"></i> Headers </label>
 		<input type="text" id="node-input-headers" />
 	</div>
+  <div class="form-row">
+		<label for="node-input-maxConnectionAttempts"><i class="fa fa-repeat"></i> Reconnect </label>
+		<input type="number" id="node-input-maxConnectionAttempts" />
+	</div>
+  <div class="form-row">
+		<label for="node-input-connectionAttemptInterval"><i class="fa fa-clock-o"></i> Interval (ms) </label>
+		<input type="number" step="1000" min="1000" id="node-input-connectionAttemptInterval" />
+	</div>
 	<div class="form-tips">
     <p>
-      Define an SSE endpoint to subscribe to.
+      Define an SSE endpoint to subscribe to. Variables are:
     </p>
+    <ul>
+      <li><code>URL</code> - The URL of the SSE endpoint</li>
+      <li><code>Event</code> - The event to subscribe to</li>
+      <li><code>Headers</code> - Optional headers to send with the request</li>
+      <li><code>Reconnect</code> - Optional maximum number of connection attempts</li>
+      <li><code>Interval (ms)</code> - Optional interval between connection attempts</li>
+    </ul>
 	</div>
 </script>
 
