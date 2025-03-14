@@ -1,4 +1,4 @@
-const { EventSource } = require("eventsource");
+const EventSource = require("eventsource");
 
 /**
  * Handles an event by logging it and sending a message to the node with a generated ID, topic, and payload.
@@ -67,15 +67,7 @@ function connect(RED, node, config) {
 
   node.eventSource = new EventSource(node.url, {
     withCredentials: true,
-    fetch: (input, init) => {
-      return fetch(input, {
-        ...init,
-        headers: {
-          ...init?.headers,
-          ...node.headers,
-        },
-      });
-    },
+    headers: node.headers,
   });
 
   node.status({
@@ -85,12 +77,10 @@ function connect(RED, node, config) {
   });
 
   // Register default message event
-  node.eventSource.addEventListener(node.event, (event) =>
-    handleEvent(RED, node, event)
-  );
+  node.eventSource.on(node.event, (event) => handleEvent(RED, node, event));
 
   // Register error event
-  node.eventSource.addEventListener("error", (err) =>
+  node.eventSource.on("error", (err) =>
     handleEventSourceError(RED, node, config, err)
   );
 
@@ -151,12 +141,8 @@ module.exports = function (RED) {
       connect(RED, this, config);
 
       const resetTimeout =
-        this.maxConnectionAttempts *
-        this.connectionAttemptInterval *
-        this.maxConnectionAttempts;
-      RED.log.debug(
-        `Reset counter for ${this.url} in ${resetTimeout / 1000} seconds`
-      );
+        this.maxConnectionAttempts * this.connectionAttemptInterval * this.maxConnectionAttempts;
+      RED.log.debug(`Reset counter for ${this.url} in ${resetTimeout / 1000} seconds`);
       setTimeout(() => {
         this._counter = 0;
         RED.log.debug(`Reset counter for ${this.url}`);
