@@ -1,6 +1,6 @@
 {
   "name": "@tq-bit/node-red-contrib-server-sent-events",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "description": "Nodes to create - or subscribe to - server-sent events",
   "main": "index.js",
   "scripts": {
