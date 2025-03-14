@@ -70,7 +70,6 @@ function connect(RED, node, config) {
     headers: node.headers,
   });
 
-  setTimeout(() => handleEventSourceClose(RED, node, config), 10000);
   node.status({
     fill: "green",
     shape: "dot",
