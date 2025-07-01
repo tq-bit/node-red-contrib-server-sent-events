@@ -48,12 +48,12 @@ function registerSubscriber(RED, node, msg) {
 	// Emit output message on client connect
 	if (typeof node.send === 'function') {
 		node.send({
-			payload: msg.payload || 'Client connected',
-			event: 'connect',
-			_msgid: msg._msgid,
-			req: msg.req,
-			res: msg.res
-		});
+            payload: {
+                event: 'connect',
+            },
+            req: msg.req,
+            res: msg.res,
+        });
 	}
 
 	// Close a SSE connection when client disconnects
@@ -88,8 +88,9 @@ function unregisterSubscriber(node, msg) {
 	// Emit output message on client disconnect
 	if (typeof node.send === 'function') {
 		node.send({
-			payload: 'Client disconnected',
-			event: 'disconnect',
+            payload: {
+                event: 'disconnect'
+            },
 			_msgid: msg._msgid,
 			req: msg.req,
 			res: msg.res
