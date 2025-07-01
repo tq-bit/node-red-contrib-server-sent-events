@@ -45,6 +45,17 @@ function registerSubscriber(RED, node, msg) {
 	msg.res._res.write(`id: ${msg._msgid}\n\n`);
 	if (msg.res._res.flush) msg.res._res.flush();
 
+	// Emit output message on client connect
+	if (typeof node.send === 'function') {
+		node.send({
+			payload: msg.payload || 'Client connected',
+			event: 'connect',
+			_msgid: msg._msgid,
+			req: msg.req,
+			res: msg.res
+		});
+	}
+
 	// Close a SSE connection when client disconnects
 	msg.res._res.req.on('close', () => {
 		unregisterSubscriber(node, msg);
@@ -73,6 +84,17 @@ function unregisterSubscriber(node, msg) {
 	msg.res._res.write(`data: The connection was closed by the server.\n`);
 	msg.res._res.write(`id: ${msg._msgid}\n\n`);
 	if (msg.res._res.flush) msg.res._res.flush();
+
+	// Emit output message on client disconnect
+	if (typeof node.send === 'function') {
+		node.send({
+			payload: 'Client disconnected',
+			event: 'disconnect',
+			_msgid: msg._msgid,
+			req: msg.req,
+			res: msg.res
+		});
+	}
 
 	// Remove the subscriber from the list
 	node.subscribers = node.subscribers.filter((subscriber) => {
