@@ -65,11 +65,37 @@
 </script>
 
 <script type="text/html" data-help-name="sse-client">
-  <h2>SSE Clientside node</h2>
-	<p>Subscribe to a SSE - event stream using the <a href="https://www.npmjs.com/package/eventsource"><code>EventSource</code> API for Node.js</a>.</p>
-	<p>
-		Reference for Server Sent Events on the client side:
-		<a href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events">See @MDN Docs</a>
-	</p>
+  <h2>SSE Client Node</h2>
+  <p>
+    The <b>SSE Client</b> node allows you to subscribe to a Server-Sent Events (SSE) stream from a specified URL. It uses the <a href="https://www.npmjs.com/package/eventsource"><code>EventSource</code> API for Node.js</a> to connect to SSE endpoints and listen for real-time events.
+  </p>
+  <h3>How it works</h3>
+  <ul>
+    <li>Connects to the configured SSE endpoint URL and subscribes to the specified event type.</li>
+    <li>When an event is received, the node outputs a message with the event type as <code>msg.topic</code> and the event data as <code>msg.payload</code>.</li>
+    <li>If an error occurs or the connection is lost, the node will attempt to reconnect based on the configured retry settings.</li>
+    <li>Optional HTTP headers can be provided for authentication or custom requirements.</li>
+  </ul>
+  <h3>Configuration</h3>
+  <ul>
+    <li><b>URL</b>: The SSE endpoint to connect to (required).</li>
+    <li><b>Event</b>: The event name to listen for (required).</li>
+    <li><b>Headers</b>: Optional JSON object with HTTP headers.</li>
+    <li><b>Reconnect</b>: Maximum number of reconnection attempts if the connection fails (default: 5).</li>
+    <li><b>Interval (ms)</b>: Time in milliseconds to wait between reconnection attempts (default: 5000ms).</li>
+  </ul>
+  <h3>Outputs</h3>
+  <ul>
+    <li>On event: <code>msg.topic</code> contains the event type, <code>msg.payload</code> contains the event data.</li>
+  </ul>
+  <h3>References</h3>
+  <ul>
+    <li>
+      <a href="https://www.npmjs.com/package/eventsource"><code>EventSource</code> API for Node.js</a>
+    </li>
+    <li>
+      <a href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events">MDN: Using server-sent events</a>
+    </li>
+  </ul>
 </script>
 <script type="text/html" data-help-name="sse-server">   </script>
