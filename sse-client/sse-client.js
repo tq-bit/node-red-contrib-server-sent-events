@@ -97,7 +97,7 @@ function connect(RED, node, config) {
  * @param {Object} node - The node instance that the function is called on.
  * @return {void}
  */
-function handleEventSourceClose(RED, node, config) {
+function handleEventSourceClose(RED, node, _config) {
   RED.log.debug(`Closing event source: ${node.url}`);
     node.eventSource.close();
     node.eventSource = null;
