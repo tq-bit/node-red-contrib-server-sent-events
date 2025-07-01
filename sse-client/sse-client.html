@@ -10,7 +10,6 @@
       headers: { value: "" },
       maxConnectionAttempts: { value: "5" },
       connectionAttemptInterval: { value: "5000" },
-      reconnectOnClose: { value: "true" },
     },
     outputs: 1,
     icon: 'white-globe.svg',
@@ -51,24 +50,16 @@
 		<label for="node-input-connectionAttemptInterval"><i class="fa fa-clock-o"></i> Interval (ms) </label>
 		<input type="number" step="1000" min="1000" id="node-input-connectionAttemptInterval" />
 	</div>
-  <div class="form-row">
-    <label for="node-input-reconnectOnClose"></i> Retry on close</label>
-    <select type="text" id="node-input-reconnectOnClose">
-      <option value="true">Yes</option>
-      <option value="false">No</option>
-    </select>
-  </div>
-	<div class="form-tips">
+  <div class="form-tips">
     <p>
       Define an SSE endpoint to subscribe to. Variables are:
     </p>
     <ul>
       <li><code>URL</code> - The URL of the SSE endpoint to connect to</li>
       <li><code>Event</code> - The event name to subscribe to</li>
-      <li><code>Headers</code> - Optional headers to send with the request (as JSON)</li>
+      <li><code>Headers</code> - Optional headers to send with the request (as JSON object)</li>
       <li><code>Reconnect</code> - Maximum number of connection attempts on error (default: 5)</li>
       <li><code>Interval (ms)</code> - Time to wait between connection attempts (default: 5000ms)</li>
-      <li><code>Retry on close</code> - Whether to attempt reconnection when connection closes (Yes/No)</li>
     </ul>
 	</div>
 </script>
@@ -81,3 +72,4 @@
 		<a href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events">See @MDN Docs</a>
 	</p>
 </script>
+<script type="text/html" data-help-name="sse-server">   </script>
