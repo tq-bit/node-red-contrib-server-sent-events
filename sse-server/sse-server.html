@@ -45,11 +45,86 @@
 </script>
 
 <script type="text/html" data-help-name="sse-server">
-  <h2>SSE Serverside node</h2>
-	<p>Open an SSE - event stream to a connected client. This node must originate from a default <code>http-in</code> node.</p>
+  <h2>SSE Server Node</h2>
   <p>
-    To connect from a client, you can use the <code>sse-client</code> node from this module or the
-    <code>EventSource</code> API.
+    The <b>SSE Server</b> node enables you to create a Server-Sent Events (SSE) endpoint in your Node-RED flow. It allows you to push real-time updates from your server to connected clients over HTTP, using the SSE protocol.
   </p>
-
+  <h3>How it works</h3>
+  <ul>
+    <li>
+      <b>Connection Handling:</b> When a client connects (typically via an <code>http-in</code> node), the SSE Server node registers the client as a subscriber and opens an SSE stream. The node keeps track of all active subscribers.
+    </li>
+    <li>
+      <b>Sending Events:</b> When the node receives a message without a <code>res</code> property, it broadcasts an event to all connected clients. The event type defaults to the <code>event</code> property (or <code>msg.topic</code>), and the data defaults to the <code>data</code> property (or <code>msg.payload</code>).
+    </li>
+    <li>
+      <b>Disconnection:</b> When a client disconnects, the node cleans up the subscriber and emits a <code>disconnect</code> event.
+    </li>
+    <li>
+      <b>Status:</b> The node displays the number of currently connected clients in the Node-RED editor.
+    </li>
+  </ul>
+  <h3>Typical Usage</h3>
+  <ol>
+    <li>
+      Start with an <code>http-in</code> node to define the endpoint URL (e.g., <code>/events</code>).
+    </li>
+    <li>
+      Connect the <code>http-in</code> node to the <b>SSE Server</b> node.
+    </li>
+    <li>
+      Optionally, use a <code>function</code> or other nodes to generate messages you want to broadcast.
+    </li>
+    <li>
+      Connect the <b>SSE Server</b> node to an <code>http-response</code> node to complete the HTTP flow.
+    </li>
+  </ol>
+  <h3>Configuration</h3>
+  <ul>
+    <li>
+      <b>Event:</b> The name of the event to send. By default, this is taken from the incoming message's <code>msg.topic</code> property.
+    </li>
+    <li>
+      <b>Data:</b> The content to send to clients. By default, this is taken from the incoming message's <code>msg.payload</code> property. The payload can be a string or a JSON object; if it is an object, it will be automatically serialized to JSON before being sent.
+    </li>
+    <li>
+      <b>Name:</b> Optional label for the node.
+    </li>
+  </ul>
+  <p>
+    <b>Note:</b> When sending a message to this node, set <code>msg.topic</code> to define the event name, and <code>msg.payload</code> to define the event content (which can be a JSON object).
+  </p>
+  <h3>Client Connection</h3>
+  <p>
+    Clients can connect using the <code>sse-client</code> node from this module or any standard SSE client such as the browser's <code>EventSource</code> API:
+  </p>
+  <pre>
+const eventSource = new EventSource('/events');
+eventSource.addEventListener('new-message', (event) => {
+  try {
+      const packet = JSON.parse(event.data);
+      console.log(packet.displayName);
+  } catch (e) {
+      console.error('Invalid JSON:', e);
+  }
+});
+  </pre>
+  <h3>Notes</h3>
+  <ul>
+    <li>
+      This node must always originate from an <code>http-in</code> node.
+    </li>
+    <li>
+      Each new HTTP connection is registered as a subscriber and will receive all broadcast events until the connection is closed.
+    </li>
+    <li>
+      On redeploy or shutdown, all client connections are closed gracefully.
+    </li>
+  </ul>
+  <h3>Related Nodes</h3>
+  <ul>
+    <li>
+      <b>sse-client</b>: Use this node to receive SSE events in Node-RED flows.
+    </li>
+  </ul>
 </script>
