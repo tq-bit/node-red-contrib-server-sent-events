@@ -46,15 +46,10 @@ function registerSubscriber(RED, node, msg) {
 	if (msg.res._res.flush) msg.res._res.flush();
 
 	// Emit output message on client connect
-	if (typeof node.send === 'function') {
-		node.send({
-            payload: {
-                event: 'connect',
-            },
-            req: msg.req,
-            res: msg.res,
-        });
-	}
+    msg.payload = {
+        event: 'connect',
+    };
+	node.send(msg);
 
 	// Close a SSE connection when client disconnects
 	msg.res._res.req.on('close', () => {
@@ -86,16 +81,10 @@ function unregisterSubscriber(node, msg) {
 	if (msg.res._res.flush) msg.res._res.flush();
 
 	// Emit output message on client disconnect
-	if (typeof node.send === 'function') {
-		node.send({
-            payload: {
-                event: 'disconnect'
-            },
-			_msgid: msg._msgid,
-			req: msg.req,
-			res: msg.res
-		});
-	}
+    msg.payload = {
+        event: 'disconnect',
+    };
+    node.send(msg);
 
 	// Remove the subscriber from the list
 	node.subscribers = node.subscribers.filter((subscriber) => {
