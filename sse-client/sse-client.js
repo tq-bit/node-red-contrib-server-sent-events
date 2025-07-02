@@ -97,29 +97,30 @@ function connect(RED, node, config) {
  * @param {Object} node - The node instance that the function is called on.
  * @return {void}
  */
-function handleEventSourceClose(RED, node, config) {
+function handleEventSourceClose(RED, node, _config) {
   RED.log.debug(`Closing event source: ${node.url}`);
-  node.eventSource.close();
+    node.eventSource.close();
+    node.eventSource = null;
 
-  if (node.reconnectOnClose) {
-    RED.log.warn(
-      `Lost connection to ${node.url} - Reconnecting in ${
-        (node.connectionAttemptInterval * (node._counter + 1)) / 1000
-      } seconds`
-    );
-    node._counter = node._counter + 1;
-    node.status({
-      fill: "yellow",
-      shape: "dot",
-      text: `Lost connection to ${node.url} - Reconnecting in ${
-        (node.connectionAttemptInterval * (node._counter + 1)) / 1000
-      } seconds`,
-    });
-    setTimeout(
-      () => connect(RED, node, config),
-      node.connectionAttemptInterval * (node._counter + 1)
-    );
-  }
+//   if (node.reconnectOnClose) {
+//     RED.log.warn(
+//       `Lost connection to ${node.url} - Reconnecting in ${
+//         (node.connectionAttemptInterval * (node._counter + 1)) / 1000
+//       } seconds`
+//     );
+//     node._counter = node._counter + 1;
+//     node.status({
+//       fill: "yellow",
+//       shape: "dot",
+//       text: `Lost connection to ${node.url} - Reconnecting in ${
+//         (node.connectionAttemptInterval * (node._counter + 1)) / 1000
+//       } seconds`,
+//     });
+//     setTimeout(
+//       () => connect(RED, node, config),
+//       node.connectionAttemptInterval * (node._counter + 1)
+//     );
+//   }
 }
 
 module.exports = function (RED) {
