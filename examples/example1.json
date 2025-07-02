@@ -80,14 +80,12 @@
       "name": "Subscribe to message server event",
       "url": "http://localhost:1880/subscribe",
       "event": "message",
-      "headers": [
-          {
-              "keyType": "other",
-              "keyValue": "x-api-token",
-              "valueType": "other",
-              "valueValue": "my-token"
-          }
-      ],
+      "headers": {
+          "keyType": "other",
+          "keyValue": "x-api-token",
+          "valueType": "other",
+          "valueValue": "my-token"
+      },
       "x": 180,
       "y": 180,
       "wires": [
