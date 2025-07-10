@@ -45,13 +45,15 @@ function handleEventSourceError(RED, node, config, err) {
   node.error(errorMessage);
 
   if (node._counter < node.maxConnectionAttempts) {
-    node.eventSource.close();
+    cleanupEventSource(node.eventSource);
+    node.eventSource = null;
     setTimeout(
       () => connect(RED, node, config),
       node._counter * node.connectionAttemptInterval
     );
   } else {
-    node.eventSource.close();
+    cleanupEventSource(node.eventSource);
+    node.eventSource = null;
     node.status({
       fill: "red",
       shape: "dot",
@@ -60,11 +62,28 @@ function handleEventSourceError(RED, node, config, err) {
   }
 }
 
+/**
+ * Removes all listeners from the EventSource instance and closes it.
+ * @param {EventSource} eventSource
+ */
+function cleanupEventSource(eventSource) {
+  if (!eventSource) return;
+  // Remove all known listeners
+  eventSource.removeAllListeners && eventSource.removeAllListeners();
+  // For compatibility with standard eventsource
+  if (eventSource.close) eventSource.close();
+}
+
 function connect(RED, node, config) {
   RED.nodes.createNode(node, config);
 
-  // General event source variables
+  // Clean up previous instance if it exists
+  if (node.eventSource) {
+    cleanupEventSource(node.eventSource);
+    node.eventSource = null;
+  }
 
+  // General event source variables
   node.eventSource = new EventSource(node.url, {
     withCredentials: true,
     headers: node.headers,
@@ -99,28 +118,8 @@ function connect(RED, node, config) {
  */
 function handleEventSourceClose(RED, node, _config) {
   RED.log.debug(`Closing event source: ${node.url}`);
-    node.eventSource.close();
-    node.eventSource = null;
-
-//   if (node.reconnectOnClose) {
-//     RED.log.warn(
-//       `Lost connection to ${node.url} - Reconnecting in ${
-//         (node.connectionAttemptInterval * (node._counter + 1)) / 1000
-//       } seconds`
-//     );
-//     node._counter = node._counter + 1;
-//     node.status({
-//       fill: "yellow",
-//       shape: "dot",
-//       text: `Lost connection to ${node.url} - Reconnecting in ${
-//         (node.connectionAttemptInterval * (node._counter + 1)) / 1000
-//       } seconds`,
-//     });
-//     setTimeout(
-//       () => connect(RED, node, config),
-//       node.connectionAttemptInterval * (node._counter + 1)
-//     );
-//   }
+  cleanupEventSource(node.eventSource);
+  node.eventSource = null;
 }
 
 module.exports = function (RED) {
