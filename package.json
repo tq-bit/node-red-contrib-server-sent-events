@@ -1,6 +1,6 @@
 {
   "name": "@tq-bit/node-red-contrib-server-sent-events",
-  "version": "1.5.1",
+  "version": "1.6.3",
   "description": "Nodes to create - or subscribe to - server-sent events",
   "main": "index.js",
   "scripts": {
@@ -32,5 +32,8 @@
   },
   "dependencies": {
     "eventsource": "2.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
   }
 }
