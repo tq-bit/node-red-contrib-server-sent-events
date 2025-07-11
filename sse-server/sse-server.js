@@ -86,11 +86,7 @@ function unregisterSubscriber(node, msg) {
 		msg.res._res.write(`id: ${msg._msgid}\n\n`);
 		if (msg.res._res.flush) msg.res._res.flush();
 	} catch (e) {
-		if (node && node.warn) {
-			node.warn(`Error writing close event: ${e.message}`);
-		} else {
-			console.warn(`Error writing close event: ${e.message}`);
-		}
+		node.warn(`Error writing close event: ${e.message}`);
 	}
 
 	// Emit output message on client disconnect
@@ -106,11 +102,7 @@ function unregisterSubscriber(node, msg) {
 	try {
 		msg.res._res.end();
 	} catch (e) {
-		if (node && node.warn) {
-			node.warn(`Error closing response: ${e.message}`);
-		} else {
-			console.warn(`Error closing response: ${e.message}`);
-		}
+		node.warn(`Error closing response: ${e.message}`);
 	}
 }
 
@@ -133,19 +125,11 @@ function handleServerEvent(RED, node, msg) {
 			if (subscriber.socket._res.flush) subscriber.socket._res.flush();
 			return true;
 		} catch (e) {
-			if (node && node.warn) {
-				node.warn(`Error sending event to subscriber ${subscriber.id}: ${e.message}`);
-			} else {
-				console.warn(`Error sending event to subscriber ${subscriber.id}: ${e.message}`);
-			}
+			node.warn(`Error sending event to subscriber ${subscriber.id}: ${e.message}`);
 			try {
 				subscriber.socket._res.end();
 			} catch (endErr) {
-				if (node && node.warn) {
-					node.warn(`Error ending subscriber response: ${endErr.message}`);
-				} else {
-					console.warn(`Error ending subscriber response: ${endErr.message}`);
-				}
+    			node.warn(`Error ending subscriber response: ${endErr.message}`);
 			}
 			return false; // Remove broken subscriber
 		}
@@ -194,11 +178,7 @@ module.exports = function (RED) {
 				try {
 					subscriber.socket._res.end();
 				} catch (e) {
-					if (this && this.warn) {
-						this.warn(`Error closing subscriber response: ${e.message}`);
-					} else {
-						console.warn(`Error closing subscriber response: ${e.message}`);
-					}
+					node.warn(`Error closing subscriber response: ${e.message}`);
 				}
 			});
 			// Clean the subscriber list to avoid memory leaks
