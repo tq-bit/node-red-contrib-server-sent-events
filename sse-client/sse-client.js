@@ -141,7 +141,7 @@ module.exports = function (RED) {
       connect(RED, this, config);
 
       const resetTimeout =
-        this.maxConnectionAttempts * this.connectionAttemptInterval * this.maxConnectionAttempts;
+        this.maxConnectionAttempts * this.connectionAttemptInterval;
       RED.log.debug(`Reset counter for ${this.url} in ${resetTimeout / 1000} seconds`);
       setTimeout(() => {
         this._counter = 0;
