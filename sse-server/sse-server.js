@@ -86,7 +86,7 @@ function unregisterSubscriber(node, msg) {
 		msg.res._res.write(`id: ${msg._msgid}\n\n`);
 		if (msg.res._res.flush) msg.res._res.flush();
 	} catch (e) {
-		node.warn(`Error writing close event: ${e.message}`);
+		RED.log.warn(`Error writing close event: ${e.message}`);
 	}
 
 	// Emit output message on client disconnect
@@ -102,7 +102,7 @@ function unregisterSubscriber(node, msg) {
 	try {
 		msg.res._res.end();
 	} catch (e) {
-		node.warn(`Error closing response: ${e.message}`);
+		RED.log.warn(`Error closing response: ${e.message}`);
 	}
 }
 
@@ -125,11 +125,15 @@ function handleServerEvent(RED, node, msg) {
 			if (subscriber.socket._res.flush) subscriber.socket._res.flush();
 			return true;
 		} catch (e) {
-			node.warn(`Error sending event to subscriber ${subscriber.id}: ${e.message}`);
+			RED.log.warn(
+                `Error sending event to subscriber ${subscriber.id}: ${e.message}`,
+            );
 			try {
 				subscriber.socket._res.end();
 			} catch (endErr) {
-    			node.warn(`Error ending subscriber response: ${endErr.message}`);
+    			RED.log.warn(
+                    `Error ending subscriber response: ${endErr.message}`,
+                );
 			}
 			return false; // Remove broken subscriber
 		}
@@ -178,7 +182,9 @@ module.exports = function (RED) {
 				try {
 					subscriber.socket._res.end();
 				} catch (e) {
-					node.warn(`Error closing subscriber response: ${e.message}`);
+					RED.log.warn(
+                        `Error closing subscriber response: ${e.message}`,
+                    );
 				}
 			});
 			// Clean the subscriber list to avoid memory leaks
