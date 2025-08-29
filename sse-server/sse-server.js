@@ -52,16 +52,21 @@ function registerSubscriber(RED, node, msg) {
 	node.send(msg);
 
 	// Close a SSE connection when client disconnects
-	msg.res._res.req.on('close', () => {
+	const closeHandler = () => {
 		unregisterSubscriber(node, msg);
 		updateNodeStatus(node, 'success');
-	});
+		// Remove the listener to avoid memory leaks
+		msg.res._res.req.removeListener('close', closeHandler);
+	};
+	msg.res._res.req.on('close', closeHandler);
 
-	// Append the request to a list of subscribers for this nod.
-	node.subscribers.push({
-		id: msg._msgid,
-		socket: msg.res,
-	});
+	// Prevent adding the same subscriber twice
+	if (!node.subscribers.some(sub => sub.id === msg._msgid)) {
+		node.subscribers.push({
+			id: msg._msgid,
+			socket: msg.res,
+		});
+	}
 	updateNodeStatus(node, 'success');
 }
 
@@ -75,10 +80,14 @@ function registerSubscriber(RED, node, msg) {
  */
 function unregisterSubscriber(node, msg) {
 	// Write out closing message to client
-	msg.res._res.write('event: close\n');
-	msg.res._res.write(`data: The connection was closed by the server.\n`);
-	msg.res._res.write(`id: ${msg._msgid}\n\n`);
-	if (msg.res._res.flush) msg.res._res.flush();
+	try {
+		msg.res._res.write('event: close\n');
+		msg.res._res.write(`data: The connection was closed by the server.\n`);
+		msg.res._res.write(`id: ${msg._msgid}\n\n`);
+		if (msg.res._res.flush) msg.res._res.flush();
+	} catch (e) {
+		RED.log.warn(`Error writing close event: ${e.message}`);
+	}
 
 	// Emit output message on client disconnect
     msg.payload = {
@@ -90,7 +99,11 @@ function unregisterSubscriber(node, msg) {
 	node.subscribers = node.subscribers.filter((subscriber) => {
 		return subscriber.id !== msg._msgid;
 	});
-	msg.res._res.end();
+	try {
+		msg.res._res.end();
+	} catch (e) {
+		RED.log.warn(`Error closing response: ${e.message}`);
+	}
 }
 
 /**
@@ -104,11 +117,26 @@ function handleServerEvent(RED, node, msg) {
 	const data = `${_serializeData(node.data || msg.payload)}`;
 	RED.log.debug(`Sent event: ${event}`);
 	RED.log.debug(`Data: ${data}`);
-	node.subscribers.forEach((subscriber) => {
-		subscriber.socket._res.write(`event: ${event}\n`);
-		subscriber.socket._res.write(`data: ${data}\n`);
-		subscriber.socket._res.write(`id: ${msg._msgid}\n\n`);
-		if (subscriber.socket._res.flush) subscriber.socket._res.flush();
+	node.subscribers = node.subscribers.filter((subscriber) => {
+		try {
+			subscriber.socket._res.write(`event: ${event}\n`);
+			subscriber.socket._res.write(`data: ${data}\n`);
+			subscriber.socket._res.write(`id: ${msg._msgid}\n\n`);
+			if (subscriber.socket._res.flush) subscriber.socket._res.flush();
+			return true;
+		} catch (e) {
+			RED.log.warn(
+                `Error sending event to subscriber ${subscriber.id}: ${e.message}`,
+            );
+			try {
+				subscriber.socket._res.end();
+			} catch (endErr) {
+    			RED.log.warn(
+                    `Error ending subscriber response: ${endErr.message}`,
+                );
+			}
+			return false; // Remove broken subscriber
+		}
 	});
 }
 
@@ -143,7 +171,7 @@ module.exports = function (RED) {
 			}
 		});
 
-		// When a runtime event, such as redeply, is registered, close all connections
+		// When a runtime event, such as redeploy, is registered, close all connections
 		RED.events.on('runtime-event', () => {
 			updateNodeStatus(this, 'success');
 			this.subscribers.forEach((subscriber) => {
@@ -151,7 +179,16 @@ module.exports = function (RED) {
 				subscriber.socket._res.write(`data: Collection closed\n`);
 				subscriber.socket._res.write(`id: 0\n\n`);
 				if (subscriber.socket._res.flush) subscriber.socket._res.flush();
+				try {
+					subscriber.socket._res.end();
+				} catch (e) {
+					RED.log.warn(
+                        `Error closing subscriber response: ${e.message}`,
+                    );
+				}
 			});
+			// Clean the subscriber list to avoid memory leaks
+			this.subscribers = [];
 		});
 	}
 	RED.nodes.registerType('sse-server', CreateSseServerNode);
