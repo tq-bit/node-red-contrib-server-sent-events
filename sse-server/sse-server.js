@@ -112,9 +112,10 @@ function unregisterSubscriber(node, msg) {
  * @param {object} node - The node object containing subscribers and event data.
  * @param {object} msg - The message object containing topic and payload.
  */
-function handleServerEvent(RED, node, msg) {
-	const event = `${node.event || msg.topic || 'message'}`;
-	const data = `${_serializeData(node.data || msg.payload)}`;
+function handleServerEvent(RED, node, msg, eventValue, dataValue) {
+	const event = eventValue ||'message';
+	const data = (typeof dataValue ==='string') ? dataValue : JSON.stringify(dataValue);
+
 	RED.log.debug(`Sent event: ${event}`);
 	RED.log.debug(`Data: ${data}`);
 	node.subscribers = node.subscribers.filter((subscriber) => {
@@ -158,10 +159,12 @@ module.exports = function (RED) {
 		/**@ts-ignore */
 		this.on('input', (msg, send, done) => {
 			try {
+				const eventValue = RED.util.getMessageProperty(msg, this.event);
+				const dataValue = RED.util.getMessageProperty(msg, this.data);
 				if (msg.res) {
 					registerSubscriber(RED, this, msg);
 				} else {
-					handleServerEvent(RED, this, msg);
+					handleServerEvent(RED, this, msg, eventValue, dataValue);
 				}
 			} catch (error) {
 				RED.log.error(error);
