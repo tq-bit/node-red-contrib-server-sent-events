@@ -7,6 +7,9 @@
       name: { value: 'sse-server', type: 'string' },
       event: { value: 'topic' },
       data: { value: 'payload' },
+      route: { value: false },
+      routeKey: { value: 'route' },
+      broadcastKey: { value: 'broadcast' }
     },
     align: 'right',
     inputs: 1,
@@ -26,7 +29,21 @@
         types:["msg"],
         typeField: "#node-input-data-type"
       })
-
+      $("#node-input-route").typedInput({
+        type:"bool",
+        types:["bool"],
+        typeField: "#node-input-route-type"
+      })
+      $("#node-input-routeKey").typedInput({
+        type:"msg",
+        types:["msg"],
+        typeField: "#node-input-routeKey-type"
+      })
+      $("#node-input-broadcastKey").typedInput({
+        type:"msg",
+        types:["msg"],
+        typeField: "#node-input-broadcastKey-type"
+      })
     }
   });
 </script>
@@ -46,16 +63,37 @@
     <input type="text" id="node-input-data">
     <input type="hidden" id="node-input-data-type">
   </div>
-	<div class="form-tips">
+  <div class="form-row">
+    <label for="node-input-route"><i class="fa fa-split"></i> Route </label>
+    <input type="text" id="node-input-route">
+    <input type="hidden" id="node-input-route-type">
+  </div>
+  <div class="form-row">
+    <label for="node-input-routeKey"><i class="fa fa-key"></i> Route Key</label>
+    <input type="text" id="node-input-routeKey">
+    <input type="hidden" id="node-input-routeKey-type">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-broadcastKey"><i class="fa fa-key"></i> Broadcast Key</label>
+    <input type="text" id="node-input-broadcastKey">
+    <input type="hidden" id="node-input-broadcastKey-type">
+  </div>
+  <div class="form-tips">
     <p>
       Define an event name and a payload to send to all subscribed clients of this HTTP endpoint. By
       default, `msg.topic` will be used to declare the event's <code>type</code>, <code>msg.payload</code> will be stringified and
       send as the event's <code>data</code> property.
     </p>
+    <p>
+      You can use this node as either a broadcast node, or a route node. By default, it acts as a broadcast : every SSE subscriber will
+      receive all events. If you enable <code>route</code>, only the subscribers that used the same <code>route key</code> at
+      subscribe time will receive those events, unless the <code>broadcast</code> flag is set to true.
+    </p>
     <b>
       This node must always origin from an 'http in' node
     </b>
-	</div>
+  </div>
 </script>
 
 <script type="text/html" data-help-name="sse-server">
@@ -104,9 +142,21 @@
     <li>
       <b>Name:</b> Optional label for the node.
     </li>
+    <li>
+      <b>Route:</b> Enable routing mode
+    </li>
+    <li>
+      <b>Route Key:</b> Defines which message property is used for routing (default: <code>msg.route</code>).
+    </li>
+    <li>
+      <b>Broadcast Key:</b> Defines which message property is used for broadcasting (default: <code>msg.broadcast</code>). This property should either be true or false, and will default to false. It will have no effect if <code>Route</code> is disabled.
+    </li>
   </ul>
   <p>
     <b>Note:</b> When sending a message to this node, set <code>msg.topic</code> to define the event name, and <code>msg.payload</code> to define the event content (which can be a JSON object).
+  </p>
+  <p>
+    <b>Note:</b> When Route is enabled, the configured route key must exist and not be empty on incoming messages.
   </p>
   <h3>Client Connection</h3>
   <p>
