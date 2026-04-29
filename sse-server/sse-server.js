@@ -38,6 +38,7 @@ function registerSubscriber(RED, node, msg) {
 		'Cache-Control': 'no-cache',
 		Connection: 'keep-alive',
 	});
+	const routeKeyValue = RED.util.getMessageProperty(msg, node.routeKey);
 
 	// Write the initial opening message
 	msg.res._res.write('event: open\n');
@@ -65,6 +66,7 @@ function registerSubscriber(RED, node, msg) {
 		node.subscribers.push({
 			id: msg._msgid,
 			socket: msg.res,
+			routeKey: routeKeyValue
 		});
 	}
 	updateNodeStatus(node, 'success');
@@ -112,13 +114,24 @@ function unregisterSubscriber(node, msg) {
  * @param {object} node - The node object containing subscribers and event data.
  * @param {object} msg - The message object containing topic and payload.
  */
-function handleServerEvent(RED, node, msg) {
-	const event = `${node.event || msg.topic || 'message'}`;
-	const data = `${_serializeData(node.data || msg.payload)}`;
+function handleServerEvent(RED, node, msg, eventValue, dataValue, routeValue, routeKeyValue, broadcastKeyValue) {
+	const event = eventValue ||'message';
+	const data = (typeof dataValue ==='string') ? dataValue : JSON.stringify(dataValue);
+
+	const mustRoute = routeValue || false;
+	const route = routeKeyValue || 'route';
+	const broadcast = broadcastKeyValue === true || false;
+
+
 	RED.log.debug(`Sent event: ${event}`);
 	RED.log.debug(`Data: ${data}`);
+	RED.log.debug(`Route: ${mustRoute}, to: ${route}, broadcast: ${broadcast}`);
 	node.subscribers = node.subscribers.filter((subscriber) => {
 		try {
+			if(mustRoute && !broadcast) {
+				if(route === undefined || subscriber.routeKey !== route) return true; //Keep sub, send nothing
+
+			}
 			subscriber.socket._res.write(`event: ${event}\n`);
 			subscriber.socket._res.write(`data: ${data}\n`);
 			subscriber.socket._res.write(`id: ${msg._msgid}\n\n`);
@@ -154,14 +167,22 @@ module.exports = function (RED) {
 		this.subscribers = [];
 		this.event = config.event;
 		this.data = config.data;
+		this.route = config.route;
+		this.routeKey = config.routeKey;
+		this.broadcastKey = config.broadcastKey;
 
 		/**@ts-ignore */
 		this.on('input', (msg, send, done) => {
 			try {
+				const eventValue = RED.util.getMessageProperty(msg, this.event);
+				const dataValue = RED.util.getMessageProperty(msg, this.data);
+				const routeValue = this.route === true || this.route==="true";
+				const routeKeyValue = RED.util.getMessageProperty(msg, this.routeKey);
+				const broadcastKeyValue = RED.util.getMessageProperty(msg, this.broadcastKey);
 				if (msg.res) {
 					registerSubscriber(RED, this, msg);
 				} else {
-					handleServerEvent(RED, this, msg);
+					handleServerEvent(RED, this, msg, eventValue, dataValue, routeValue, routeKeyValue, broadcastKeyValue);
 				}
 			} catch (error) {
 				RED.log.error(error);
